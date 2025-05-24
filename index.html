@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Saga de Pendragon</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Spectral:wght@400;500;600&display=swap');
+
+        :root {
+            --primary-color: #8b0000;
+            --secondary-color: #5a3921;
+            --background-color: #2c2c2c;
+            --text-color: #f5f0e6;
+            --timeline-bg: linear-gradient(to right, #d9b38c, #8b4513);
+            --timeline-marker: #3a2313;
+            --card-bg: #f5f0e6;
+            --card-text: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Spectral', serif;
+            background-color: var(--background-color);
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1IiBoZWlnaHQ9IjUiPgo8cmVjdCB3aWR0aD0iNSIgaGVpZ2h0PSI1IiBmaWxsPSIjMmMyYzJjIj48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDVMNSAwWk02IDRMNCA2Wk0tMSAxTDEgLTFaIiBzdHJva2U9IiMzYzNjM2MiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=');
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 40px;
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            padding: 20px;
+            font-family: 'Cinzel', serif;
+            color: #333;
+            background-color: #f5f0e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .year-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .timeline {
+            position: relative;
+            height: 120px;
+            background: var(--timeline-bg);
+            border-radius: 10px;
+            margin: 30px 0;
+            cursor: pointer;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--timeline-marker);
+            transform: translateY(-50%);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 15px;
+            background-color: var(--timeline-marker);
+            transform: translateX(-50%);
+        }
+
+        .marker-year {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+            white-space: nowrap;
+        }
+
+        .character {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 60px;
+            cursor: grab;
+            transition: transform 0.2s ease;
+            z-index: 10;
+        }
+
+        .character.dragging {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .character-icon {
+            width: 100%;
+            height: 100%;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            transition: background-image 0.5s ease;
+        }
+
+        .event-display {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            min-height: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .event-display h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #d9b38c;
+            padding-bottom: 10px;
+        }
+
+        .event-display p {
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Story Styles */
+        .story-container {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            margin-bottom: 60px;
+        }
+
+        .chapter {
+            margin-bottom: 60px;
+        }
+
+        .chapter-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .chapter-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        .chapter-content p {
+            margin-bottom: 20px;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--secondary-color), transparent);
+            margin: 40px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .timeline {
+                height: 100px;
+            }
+            
+            .character {
+                width: 30px;
+                height: 45px;
+            }
+            
+            .event-display {
+                min-height: 150px;
+            }
+            
+            .story-container {
+                padding: 20px;
+            }
+            
+            .chapter-title {
+                font-size: 1.5rem;
+            }
+            
+            .chapter-content {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>A Saga de Pendragon</h1>
+            <p class="subtitle">Uma jornada através do tempo, poder e vingança</p>
+        </header>
+
+        <div class="timeline-container">
+            <h2 class="timeline-title">Linha do Tempo</h2>
+            
+            <div class="year-display">
+                <span id="current-year">Ano 0 E.E.</span>
+                <span id="character-age">Idade: 18 anos</span>
+            </div>
+            
+            <div id="timeline" class="timeline">
+                <!-- Marcadores de anos serão adicionados via JavaScript -->
+                
+                <!-- Personagem arrastável -->
+                <div id="character" class="character">
+                    <div id="character-icon" class="character-icon"></div>
+                </div>
+            </div>
+            
+            <!-- Exibição do evento atual -->
+            <div class="event-display">
+                <h2 id="event-title">Entrada no Exílio</h2>
+                <p id="event-description">Pendragon, jovem de 18 anos com herança do Clã Zeltas Dominic, é exilado após matar seu pai, um monarca poderoso. Crucificado pelos carcereiros, sobrevive graças à sua linhagem especial. Descobre o bracelete arcano que prende sua alma ao Exílio e inicia sua jornada de sobrevivência.</p>
+            </div>
+        </div>
+
+        <div class="story-container">
+            <div class="chapter">
+                <h2 class="chapter-title">Capítulo 1: Origens Sombrias e o Fardo da Linhagem</h2>
+                <div class="chapter-content">
+                    <p>Pendragon descende do antigo Clã Zeltas Dominic, um povo ancestral cujas origens se perdiam nas brumas do tempo. Para as nações humanas mais jovens, eles eram sussurrados como "demônios", um temor nascido não de uma natureza inerentemente maligna, mas de suas capacidades extraordinárias e de um destino sombrio que os assombrava. Os Zeltas eram, em essência, humanos, mas tocados por uma força vital ancestral que lhes conferia longevidade – viviam até dois séculos – e uma resistência física notável, incluindo imunidade à fome e sede comuns. Essa vitalidade, contudo, vinha com um preço terrível: uma lenta e inexorável degeneração mental que se acentuava com o passar das décadas, um desgaste da alma que corroía a sanidade dos mais velhos, tornando-os erráticos e, por vezes, perigosos. Essa degeneração, aliada a uma afinidade natural com energias que outros consideravam profanas, alimentava a desconfiança e o medo que culminavam na alcunha de "demônios".</p>
+                    
+                    <p>Outro marcador distintivo dos Zeltas era sua relação com a Mácula, uma energia corruptora, caótica e poderosa que permeava certas regiões do mundo e podia ser manipulada por aqueles com conhecimento ou afinidade. Nascidos com cabelos de um ruivo vibrante, os fios de um Zeltas escureciam irrevogavelmente ao primeiro contato significativo com a Mácula, um sinal visível da ativação de seu potencial latente para canalizar essa força – e também de sua vulnerabilidade à sua influência corruptora. Muitos Zeltas evitavam a Mácula a todo custo, temendo a aceleração da degeneração mental que ela trazia, enquanto outros a buscavam ativamente pelo poder que oferecia, selando seu destino.</p>
+                    
+                    <p>O próprio clã já se encontrava em declínio acentuado há gerações, enfraquecido por conflitos internos, perseguições externas e os estragos da própria degeneração que minava suas lideranças. Foi nesse cenário crepuscular que nasceu Pendragon, fruto de uma união controversa e, em última análise, fatal: o casamento de um ambicioso monarca humano do Reino de Nova Shadaerion com a última rainha dos Zeltas Dominic, uma mulher de cabelos ruivos intocados pela Mácula.</p>
+                    
+                    <p>O rei humano, pai de Pendragon, viu na rainha Zeltas não apenas uma beleza exótica, mas uma oportunidade política: acesso a linhagens antigas, talvez conhecimento perdido, e a chance de pacificar ou absorver os remanescentes de um povo temido. Ele agiu como se a amasse, ocultando suas ambições sob um véu de paixão. Contudo, a pressão de seu próprio conselho, o temor crescente da herança "demoníaca" que seu filho carregaria, e talvez a descoberta de pactos ou profecias sombrias ligadas aos Zeltas que ele só compreendeu tarde demais, envenenaram a união. A "origem do sangue" da rainha tornou-se um fardo insuportável para sua imagem e poder. Tomado por uma mistura de vergonha, medo e um distorcido senso de dever para com seu próprio legado humano, ele cometeu o ato impensável: assassinou sua esposa, a rainha Zeltas, selando o destino de seu clã e plantando as sementes da vingança no coração de seu próprio filho.</p>
+                    
+                    <p>Pendragon cresceu à sombra dessa tragédia, ciente da herança dividida que corria em suas veias. Treinado nas artes da guerra desde cedo, tornou-se um guerreiro formidável aos 18 anos. A linhagem híbrida conferiu-lhe uma resistência ainda maior que a dos Zeltas puros à degeneração mental natural, mas não o protegeu da dor e da raiva. Consumido pelo desejo de vingança pela mãe e pelo destino de seu povo, ele confrontou o pai. A batalha foi brutal. No clímax do confronto, ao desferir o golpe fatal contra o rei, Pendragon sentiu a Mácula despertar dentro de si com força avassaladora, uma resposta à violência extrema e à dor. Seus cabelos, antes de um tom indefinido herdado do pai, escureceram instantaneamente, tornando-se negros como a noite – o sinal indelével de seu primeiro e profundo contato com a energia corruptora.</p>
+                    
+                    <p>O parricídio, especialmente a morte de um monarca influente, abalou Nova Shadaerion. Contudo, o reino já estava instável, talvez à beira de uma guerra civil ou sofrendo as consequências de outras intrigas. Facções que temiam o poder latente de Pendragon, outras que viam nele uma ameaça à ordem humana, e talvez algumas poucas que ainda respeitavam a linhagem Zeltas, chegaram a um acordo tenso. Em vez da execução sumária, que poderia desencadear mais caos, optaram pelo banimento. Pendragon foi condenado ao pior dos destinos conhecidos: o Exílio, uma dimensão-prisão envolta por uma barreira impenetrável, um lugar de onde, dizia-se, ninguém jamais retornava.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">Capítulo 2: O Crisol do Exílio</h2>
+                <div class="chapter-content">
+                    <p>A chegada ao Exílio foi brutal. Pendragon não foi simplesmente jogado através da barreira; ele foi recebido por uma ordem sombria de guerreiros-carcereiros, guardiões ancestrais daquela dimensão-prisão, talvez remanescentes dos próprios criadores da barreira ou servos de poderes que a utilizavam. Apesar de sua força formidável, o choque da transição dimensional, os ferimentos da batalha contra o pai e o poder concentrado desses guardiões o subjugaram. Como punição exemplar e um aviso a quaisquer futuros exilados com pretensões, ele foi espancado e crucificado no deserto desolado que marcava a entrada daquele reino perdido, deixado para morrer sob o sol escaldante e as noites gélidas.</p>
+                    
+                    <p>No pulso, sentiu o frio de um metal estranho: um bracelete arcano, tecnologia ancestral que se materializara em seu braço no momento em que cruzou a barreira. Descobriria mais tarde que aquele artefato era a âncora que prendia sua alma àquele lugar, uma chave individualizada para a prisão maior. Todos que eram lançados ao Exílio recebiam um igual, um grilhão espiritual que impedia qualquer fuga.</p>
+                    
+                    <p>Mas Pendragon não era comum. A herança Zeltas e a Mácula recém-despertada, embora perigosa, conferiam-lhe uma resiliência sobre-humana. Ele sobreviveu à provação da cruz, forçando-se a escapar e rastejando pelo deserto em busca de refúgio. A sede e a fome não o afligiam como afligiriam um humano normal, mas a dor e a humilhação forjaram nele uma determinação férrea. Ao encontrar um rio e, posteriormente, uma fogueira de outros exilados, sua tentativa de aproximação pacífica foi recebida com violência. A lei do Exílio era clara: matar ou morrer.</p>
+                    
+                    <p>Pendragon abraçou essa lei. Emboscou um de seus agressores, tomou sua espada e iniciou uma nova jornada, não mais de vingança contra o passado, mas de sobrevivência e domínio no presente. O Exílio era um crisol, um lugar de poder bruto, relíquias esquecidas e horrores indizíveis. Era também um vasto campo de aprendizado para alguém com sua afinidade latente pela Mácula.</p>
+                    
+                    <p>Nos dez anos seguintes, Pendragon mergulhou nos segredos arcanos daquele lugar. Ele não apenas sobreviveu, mas prosperou de uma forma aterradora. Caçou monstros, desvendou ruínas de civilizações banidas antes da sua, enfrentou entidades sombrias e aprendeu a dominar a Mácula de uma forma que poucos conseguiriam. Descobriu que a Mácula, embora letal para humanos comuns cujo corpo frágil não suportava sua intensidade por muito tempo, podia ser canalizada e até parcialmente controlada. Aprendeu rituais para ressuscitar os mortos como servos, a rasgar o véu da realidade para criar portais de viagem instantânea através das vastas terras do Exílio, a invocar demônios menores de planos adjacentes, a comandar tempestades e a fortalecer seu próprio corpo a ponto de saltar de montanhas sem temer a queda. Essa maestria arcana, combinada com sua habilidade marcial inata e inteligência estratégica, fez dele uma força imparável. Tornou-se uma lenda sussurrada com temor e admiração, acumulando seguidores, escravos e súditos, forjando um império nas sombras daquele mundo perdido. Em uma década, o jovem exilado transformou-se no feiticeiro mais poderoso que aquele mundo – e talvez qualquer outro – já conhecera.</p>
+                    
+                    <p>Sua jornada de poder culminou na busca pelos artefatos necessários para romper o selo de seu próprio bracelete. Eram peças da própria tecnologia ancestral que mantinha a barreira do Exílio, guardadas nos locais mais perigosos e por entidades ancestrais. Ao reunir esses artefatos e compreender seus mecanismos, Pendragon não apenas encontrou a chave para sua própria liberdade, mas também adquiriu um grau de controle sobre a própria barreira do Exílio. Ele poderia sair e, mais importante, poderia selar a passagem atrás de si.</p>
+                    
+                    <p>Contudo, antes de partir, um último ato marcou sua estadia. Nos meses finais de sua busca pelos artefatos, ele gerou um filho com uma mulher do Exílio – talvez uma seguidora leal, talvez uma prisioneira, talvez alguém que ofereceu um breve consolo naquela terra desolada. Quando chegou a hora de partir, Pendragon tomou uma decisão calculada e fria: deixou o filho e a mãe para trás. A razão exata se perdeu nas brumas de sua mente complexa – talvez fossem um elo fraco, um lembrete de uma vida que ele queria apagar, ou uma peça estratégica em planos futuros que só ele compreendia. O fato é que Saint Diego nasceu no Exílio, destinado a nunca conhecer o mundo exterior, carregando o fardo do abandono paterno.</p>
+                    
+                    <p>Pendragon cruzou a barreira, agora sob seu controle parcial, e selou a passagem. O Exílio, seu reino sombrio, estava novamente isolado, mas agora ele detinha uma das chaves.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">Capítulo 3: O Mundo Exterior e os Eternos</h2>
+                <div class="chapter-content">
+                    <p>O retorno ao mundo exterior, após 27 anos no Exílio (Ano 27 E.E.), não foi triunfal. Pendragon, agora com 45 anos, era uma figura lendária dentro da prisão, mas fora dela, era um pária, um fantasma de um passado violento. O mundo não o queria. Ele vagou como um errante, um andarilho poderoso, mas sem rumo, observando as mudanças que ocorreram durante sua ausência.</p>
+                    
+                    <p>Sua presença e o poder que emanava dele, no entanto, não passaram despercebidos por muito tempo. Chamou a atenção dos Eternos, uma associação secreta e poderosa formada pelas famílias reais de reinos influentes e pelos remanescentes de dinastias caídas: os altivos humanos de Stormhold, seus rivais de Cold Embrace, os Elfos magos de Elvanor (mestres de dragões que o mundo julgava extintos, ocultos em sua ilha secreta), os Elfos druídicos e sombrios de Felgarth, os imponentes Vanghoul (híbridos de elfos e ogros ancestrais, ferreiros que habitavam vulcões) e os nobres de Shadaerion. Essas famílias operavam a partir de um Hall oculto, uma cidadela fora do plano terrestre, manipulando os fios do poder no mundo conhecido, com interesses que transcendiam as preocupações mortais.</p>
+                    
+                    <p>Os Eternos viram em Pendragon uma ferramenta e uma chave. Seu conhecimento do Exílio, sua maestria sobre a Mácula (uma força que eles conheciam, mas temiam ou usavam com extrema cautela) e seu aparente controle sobre a barreira eram de imenso interesse. O Exílio era visto por eles como um tesouro esquecido, repleto de recursos, tecnologias perdidas e relíquias de poder que desejavam explorar e monopolizar. A família Stormhold fez o primeiro contato formal, convidando Pendragon para sua fortaleza.</p>
+                    
+                    <p>Foi nesse período, enquanto navegava pelas complexas relações com os Eternos e estabelecia algum tipo de base no mundo exterior, que Pendragon conheceu a mulher que se tornaria a mãe de seus outros filhos. Talvez ela fosse ligada aos próprios Eternos, talvez uma nobre de Stormhold ou mesmo uma Vanghoul, explicando a futura conexão de Azula com eles. Dessa união nasceram os gêmeos Azula e Zeno (Ano 82 E.E.), ambos herdando a linhagem Zeltas e o potencial para a Mácula.</p>
+                    
+                    <p>Quando os gêmeos tinham 8 anos, Pendragon foi formalmente convidado ao Hall dos Eternos. Ele passou a década seguinte imerso naquele ambiente de poder e intriga, dividindo seu tempo entre o Hall e a criação dos filhos. Ele compartilhava conhecimento limitado sobre o Exílio com os Eternos, alimentando seu interesse e ganhando sua confiança, enquanto secretamente formulava seus próprios planos. Ele via o Exílio como seu domínio e não tinha intenção de dividi-lo. Ao mesmo tempo, treinava Azula e Zeno, não apenas nas artes do combate e da estratégia, mas também nos caminhos da Mácula e nos segredos que os Eternos cobiçavam, preparando-os, ostensivamente, para ajudar na futura exploração do Exílio.</p>
+                    
+                    <p>Azula mostrava uma aptidão natural e selvagem para o combate, uma força quase monstruosa que levou Pendragon a buscar treinamento para ela entre os Vanghoul, os únicos capazes (ou dispostos) a lidar com sua ferocidade. Zeno, embora brilhante estrategista e combatente habilidoso, vivia à sombra da irmã, esforçando-se constantemente para provar seu valor ao pai. Ambos nasceram ruivos, mas durante a infância, ao primeiro contato significativo com o pai já imbuído de Mácula, seus cabelos escureceram, sinalizando a ativação de seu potencial latente.</p>
+                    
+                    <p>Enquanto isso, no Exílio, os anos passavam de forma diferente. Saint Diego, o filho abandonado, crescia em um ambiente hostil. No Ano 45 E.E., aos 18 anos, foi preso nas terras nórdicas do Exílio, acusado de portar a herança demoníaca de seu pai. Passou 40 longos anos em uma cela escura e isolada, seu corpo definhando, mas sua mente, tocada pela Mácula de forma única devido à sua origem e ao abandono, desenvolveu uma habilidade peculiar: vislumbres fragmentados do passado, do presente e de futuros possíveis, especialmente ligados àqueles com quem tinha alguma conexão. Ele via a ascensão de Musa Pandaro, filho do antigo general de seu pai, King O'Darfar. Musa, nascido no deserto do Exílio (Ano 28 E.E.), cresceu ouvindo as histórias de Pendragon na taverna de seu pai em Sepermeru, tornando-se um guerreiro renomado e leal ao legado do antigo mestre. Musa, ao saber da existência de um filho de Pendragon, iniciou uma busca implacável (Ano 60 E.E.), usando seu próprio conhecimento crescente da Mácula (adquirido através de estudo árduo para mitigar seus efeitos colaterais em seu corpo humano) e até acessando antigos portais deixados por Pendragon.</p>
+                    
+                    <p>Na prisão, Saint Diego usou suas visões para manipular sutilmente seu carcereiro, Velthara, ensinando-o a decifrar fragmentos das profecias que via, alertando-o sobre um futuro de sangue e sombras. Convencido do desastre iminente, Velthara abandonou seu posto (Ano 85 E.E.). Pouco depois, Musa Pandaro (57 anos), guiado por informações fragmentadas e talvez pelas próprias manipulações de Diego, finalmente localizou a prisão nórdica. Liderando um ataque brutal, derrubou as muralhas e enfrentou o comandante Yamandu em um duelo feroz. Vencedor, Musa encontrou o único prisioneiro vivo: uma figura cadavérica com um olho brilhante. O prisioneiro apresentou-se com um nome falso: "Eu sou Alexandre, mas muitos me chamam de Imortal." Musa, reconhecendo os sinais da Mácula e talvez sentindo uma conexão inexplicável, resgatou-o, sem saber que libertara o filho de Pendragon e que estava sendo manipulado para um plano de vingança muito maior. Saint Diego mentiu seu nome para Musa, sabendo pelas visões que Musa era leal a Pendragon e que poderia ser usado como um peão para se aproximar e destruir o pai que o abandonara.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">Capítulo 4: O Retorno e a Traição dos Majins</h2>
+                <div class="chapter-content">
+                    <p>No Ano 100 E.E., a pressão dos Eternos sobre Pendragon aumentou. Desconfiados de seus verdadeiros motivos ou simplesmente impacientes, eles convenceram Azula e Zeno, agora com 18 anos, a entrarem no Exílio. Azula foi enviada formalmente, talvez como uma vanguarda ou uma forma de forçar a mão de Pendragon. Zeno, talvez por iniciativa própria ou em um evento separado, naufragou em uma ilha remota (possivelmente dentro ou na fronteira do Exílio) e começou a construir seu próprio domínio.</p>
+                    
+                    <p>Este movimento dos Eternos precipitou os planos de Pendragon. No Ano 102 E.E., aos 120 anos, ele finalmente retornou ao Exílio, não como um conquistador a ser deposto, mas como um mestre retornando ao seu reino. Ele convocou Musa Pandaro (74 anos) e o homem que conhecia como "Alexandre" (Saint Diego, 75 anos), reconhecendo neles poderosos feiticeiros com profundo conhecimento da Mácula, essenciais para seu próximo projeto: a criação dos Majins.</p>
+                    
+                    <p>Pendragon revelou seu plano (ou parte dele): forjar guerreiros supremos, imbuídos de Mácula, poder arcano e força vital, leais apenas a ele. Seriam sua guarda de elite, sua resposta ao poderio dos Eternos, a garantia de que ninguém tomaria o Exílio dele. A criação dos Majins, iniciada no Ano 103 E.E., foi um processo sombrio que durou quase uma década. Vidas inocentes foram usadas como "combustível" nos rituais, e a própria natureza instável da Mácula tornava os experimentos perigosos. Saint Diego, trabalhando nas sombras sob o disfarce de Alexandre, viu ali a oportunidade perfeita. Usando seu conhecimento íntimo da Mácula e guiado por suas visões de um futuro onde os Majins matariam Pendragon, ele sutilmente teceu uma compulsão nos rituais de criação – um gatilho escondido que forçaria os Majins a se voltarem contra a figura que mais amavam ou respeitavam: seu próprio criador.</p>
+                    
+                    <p>Dos muitos experimentos, apenas 13 Majins sobreviveram à corrupção inicial e alcançaram a fase adolescente (Ano 112 E.E.). O primeiro teste em larga escala (Ano 110 E.E.) mostrou tremenda resistência mágica, mas também sinais preocupantes de instabilidade emocional – um efeito colateral que Diego talvez tenha exacerbado.</p>
+                    
+                    <p>No Ano 113 E.E., o plano de Diego se concretizou. Em um momento de vulnerabilidade de Pendragon – talvez após um ritual particularmente desgastante que o deixou enfraquecido pela Mácula, como Diego previra – a compulsão foi ativada. Os Majins, suas criações e orgulho, voltaram-se contra ele em um frenesi de violência. Uma das Majins, a quem Diego havia ironicamente nomeado Velthara em homenagem ao seu antigo carcereiro, desferiu o golpe aparentemente fatal, atravessando o coração de Pendragon (131 anos). O corpo de Pendragon, contudo, desapareceu em meio ao caos e à explosão de energia arcana, nunca sendo encontrado.</p>
+                    
+                    <p>Após o ataque, Velthara e alguns outros Majins envolvidos diretamente colapsaram, sobrecarregados pela energia ou pelo conflito interno. Saint Diego e Musa, presentes no rescaldo, tomaram controle da situação. Diego, para conter as armas que criara, e Musa, talvez ainda leal ao legado de Pendragon e vendo os Majins como perigosos demais sem um mestre (ou sendo convencido por Diego), aprisionaram os Majins sobreviventes em ruínas esquecidas do Exílio (Ano 114 E.E.). O mundo exterior, e mesmo muitos no Exílio, acreditaram que Pendragon estava definitivamente morto.</p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="chapter">
+                <h2 class="chapter-title">Capítulo 5: Ecos do Passado, Sementes do Futuro</h2>
+                <div class="chapter-content">
+                    <p>O Exílio mergulhou em uma nova era de incerteza. Sem Pendragon, o vácuo de poder foi disputado. No Ano 120 E.E., um herdeiro de Musa (talvez um filho ou neto, criado nas lendas de Pendragon e com conhecimento fragmentado sobre os Majins) localizou e libertou a Majin Velthara, talvez buscando poder ou acreditando restaurar a antiga ordem, desencadeando um novo ciclo de caos.</p>
+                    
+                    <p>Velthara, agora livre e poderosa, liderou facções e expulsou os agentes dos Eternos que tentavam se infiltrar no Exílio (Ano 123 E.E.), selando novamente as fronteiras que Pendragon havia controlado. O Exílio tornou-se novamente um reino isolado e perigoso.</p>
+                    
+                    <p>Longe desses conflitos, Saint Diego (agora com 113 anos, no Ano 140 E.E.), ainda operando sob o nome de Alexandre ou talvez recluso, vagava pelas terras geladas do norte. Foi lá que encontrou Vithoria, uma garotinha perdida da família Fall (ligada a Stormhold, talvez uma descendente de agentes dos Eternos presos no Exílio). Em um ato incomum para ele, Diego a adotou. Suas visões, que sempre o atormentaram com futuros possíveis, eram silenciosas em relação à menina. Ela era um mistério, uma página em branco, alguém sem um destino traçado em suas premonições. Essa ausência de futuro, essa anomalia, trouxe a Diego uma estranha sensação de paz, um vislumbre de algo fora das teias de vingança e manipulação que ele mesmo tecera. Ele viu nela, talvez, uma semente de esperança, ou simplesmente um refúgio do fardo de suas próprias visões.</p>
+                    
+                    <p>Nas montanhas geladas, dentro de uma antiga cabana de pedra, enquanto a neve uivava lá fora, Diego observava Vithoria praticar com uma espada de madeira. A lareira crepitava. "Você ainda ergue o punho muito alto no segundo corte", disse ele, a voz firme, mas com um traço de paciência recém-descoberta.</p>
+                    
+                    <p>Vithoria bufou, determinada. "Quando eu estiver pronta... vamos sair daqui?", perguntou ela, os olhos buscando os dele, tentando decifrar o peso que ele carregava ao olhar o horizonte.</p>
+                    
+                    <p>Saint Diego levantou-se, a figura ainda marcada pelos longos anos de sofrimento e poder sombrio. "Quando estiver pronta..." ele respondeu, apertando o punho da própria espada, "... o Exílio vai saber quem você é."</p>
+                    
+                    <p>As histórias antigas estavam longe de terminar. Estavam apenas prestes a se reescrever.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 A Saga de Pendragon - Todos os direitos reservados</p>
+        </footer>
+    </div>
+
+    <script>
+        // Dados da linha do tempo
+        const timelineEvents = [
+            {
+                year: 0,
+                title: "Entrada no Exílio",
+                description: "Pendragon, jovem de 18 anos com herança do Clã Zeltas Dominic, é exilado após matar seu pai, um monarca poderoso. Crucificado pelos carcereiros, sobrevive graças à sua linhagem especial. Descobre o bracelete arcano que prende sua alma ao Exílio e inicia sua jornada de sobrevivência.",
+                characterAge: 18
+            },
+            {
+                year: 10,
+                title: "Domínio da Mácula",
+                description: "Em apenas uma década, Pendragon domina os segredos da Mácula, tornando-se o feiticeiro mais poderoso do Exílio. Aprende a ressuscitar mortos, criar portais, invocar demônios e controlar elementos. Conquista territórios, acumula seguidores e busca artefatos para quebrar o selo do bracelete.",
+                characterAge: 28
+            },
+            {
+                year: 27,
+                title: "Fuga do Exílio",
+                description: "Aos 45 anos, Pendragon escapa do Exílio após reunir todos os artefatos necessários. Abandona seu filho recém-nascido, Saint Diego, e sela as fronteiras do Exílio atrás de si, garantindo que ninguém mais possa seguir seu caminho.",
+                characterAge: 45
+            },
+            {
+                year: 28,
+                title: "Nascimento de Musa Pandaro",
+                description: "Nasce Musa Pandaro, filho de King O'Darfar, ex-general de Pendragon. Cresce ouvindo histórias sobre o lendário feiticeiro na taverna de seu pai em Sepermeru. Enquanto isso, Saint Diego cresce no hostil ambiente do Exílio, carregando o fardo do abandono paterno.",
+                characterAge: 46
+            },
+            {
+                year: 45,
+                title: "Prisão de Saint Diego",
+                description: "Saint Diego, aos 18 anos, é capturado e preso nas terras Nórdicas do Exílio, acusado de portar a \"mácula\" demoníaca de seu pai. Começa seu isolamento de 40 anos em uma cela escura, onde desenvolve visões do passado, presente e futuros possíveis.",
+                characterAge: 63
+            },
+            {
+                year: 60,
+                title: "Busca de Musa Pandaro",
+                description: "Musa Pandaro, agora com 32 anos e um guerreiro renomado, descobre a existência do filho de Pendragon e inicia uma busca implacável. Usa conhecimentos da Mácula e antigos portais deixados por Pendragon, causando caos no norte do Exílio.",
+                characterAge: 78
+            },
+            {
+                year: 82,
+                title: "Nascimento de Azula e Zeno",
+                description: "No mundo exterior, nascem Azula e Zeno, filhos gêmeos de Pendragon com uma mulher possivelmente ligada aos Eternos. Ambos herdam a linhagem Zeltas e o potencial para a Mácula, nascendo com cabelos ruivos que mais tarde escurecerão.",
+                characterAge: 100
+            },
+            {
+                year: 85,
+                title: "Libertação de Saint Diego",
+                description: "Após 40 anos de prisão, Saint Diego (58 anos) profetiza a queda do presídio e manipula seu carcereiro Velthara a abandonar o posto. Musa Pandaro (57 anos) ataca o presídio, derrota o comandante Yamandu e encontra Diego, que se apresenta com o nome falso \"Alexandre\".",
+                characterAge: 103
+            },
+            {
+                year: 90,
+                title: "Convite dos Eternos",
+                description: "Pendragon é formalmente convidado ao Hall dos Eternos, uma associação secreta de famílias poderosas. Azula e Zeno, com 8 anos, iniciam treinamento intensivo. Azula mostra aptidão selvagem para combate, enquanto Zeno se destaca como estrategista, sempre tentando provar seu valor.",
+                characterAge: 108
+            },
+            {
+                year: 100,
+                title: "Azula e Zeno no Exílio",
+                description: "Os Eternos, impacientes ou desconfiados, convencem Azula e Zeno (18 anos) a entrarem no Exílio. Azula é enviada formalmente como vanguarda, enquanto Zeno naufraga em uma ilha remota onde começa a construir seu próprio domínio.",
+                characterAge: 118
+            },
+            {
+                year: 102,
+                title: "Retorno de Pendragon",
+                description: "Pendragon (120 anos) finalmente retorna ao Exílio, convocando Musa (74 anos) e \"Alexandre\"/Saint Diego (75 anos) como feiticeiros para seu novo projeto: a criação dos Majins, guerreiros supremos imbuídos de Mácula, poder arcano e força vital.",
+                characterAge: 120
+            },
+            {
+                year: 112,
+                title: "Criação dos Majins",
+                description: "Período sombrio de experimentos para criar os Majins. Vidas inocentes são sacrificadas como \"combustível\" nos rituais. Apenas 13 Majins sobrevivem à fase inicial. Saint Diego, secretamente, insere uma compulsão nos Majins para que matem quem mais amam: Pendragon.",
+                characterAge: 130
+            },
+            {
+                year: 113,
+                title: "Traição dos Majins",
+                description: "A traição se concretiza. Em um momento de vulnerabilidade de Pendragon, os Majins se voltam contra ele. Velthara, uma Majin nomeada por Diego em homenagem ao seu antigo carcereiro, atravessa o coração de Pendragon (131 anos), que desaparece em meio ao caos.",
+                characterAge: 131
+            },
+            {
+                year: 114,
+                title: "Aprisionamento dos Majins",
+                description: "Saint Diego e Musa aprisionam os Majins sobreviventes em ruínas esquecidas do Exílio. O mundo acredita na morte definitiva de Pendragon, criando um vácuo de poder nas Terras Exiladas.",
+                characterAge: 132
+            },
+            {
+                year: 120,
+                title: "Libertação de Velthara",
+                description: "Um herdeiro de Musa, talvez buscando poder ou acreditando restaurar a antiga ordem, localiza e liberta a Majin Velthara, desencadeando uma nova era de caos no Exílio.",
+                characterAge: 138
+            },
+            {
+                year: 123,
+                title: "Expulsão dos Eternos",
+                description: "Velthara, agora livre e poderosa, lidera facções e expulsa os agentes dos Eternos que tentavam se infiltrar no Exílio. As fronteiras são novamente seladas, isolando o Exílio do mundo exterior.",
+                characterAge: 141
+            },
+            {
+                year: 140,
+                title: "Vithoria e Saint Diego",
+                description: "Saint Diego/Alexandre (113 anos) encontra Vithoria, uma garotinha da família Fall, nas terras geladas do norte. Intrigado por não conseguir ver o futuro dela, a adota e inicia seu treinamento. Para ele, ela representa uma paz desconhecida, livre das visões que sempre o atormentaram.",
+                characterAge: 158
+            }
+        ];
+
+        // Imagens de personagem em diferentes idades
+        const characterImages = {
+            young: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1IiByPSIxMiIgZmlsbD0iI2YwYzk4NyIvPgogIDxwYXRoIGQ9Ik0xMCA0MCBMMjAgNjAgTDMwIDQwIFoiIGZpbGw9IiM4YjQ1MTMiLz4KICA8cmVjdCB4PSIxNSIgeT0iMjUiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzhiNDUxMyIvPgogIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTIiIHI9IjIiIGZpbGw9IiMwMDAiLz4KICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjEyIiByPSIyIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZD0iTTE1IDE4IFEyMCAyMiAyNSAxOCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMTAgMTAgTDE1IDggTTMwIDEwIEwyNSA4IiBzdHJva2U9IiM4YjAwMDAiIHN0cm9rZS13aWR0aD0iMSIvPgo8L3N2Zz4=`,
+            adult: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1IiByPSIxMiIgZmlsbD0iI2Q5OTM0ZSIvPgogIDxwYXRoIGQ9Ik0xMCA0MCBMMjAgNjAgTDMwIDQwIFoiIGZpbGw9IiM1YTM5MjEiLz4KICA8cmVjdCB4PSIxNSIgeT0iMjUiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzVhMzkyMSIvPgogIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTIiIHI9IjIiIGZpbGw9IiMwMDAiLz4KICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjEyIiByPSIyIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZD0iTTE1IDE4IFEyMCAyMCAyNSAxOCIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNOCA4IEwxNSA1IE0zMiA4IEwyNSA1IiBzdHJva2U9IiM4YjAwMDAiIHN0cm9rZS13aWR0aD0iMS41Ii8+CiAgPHBhdGggZD0iTTE1IDMwIEwxMCAzNSBNMjUgMzAgTDMwIDM1IiBzdHJva2U9IiM1YTM5MjEiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4=`,
+            middleAged: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1IiByPSIxMiIgZmlsbD0iI2IzNzg0MCIvPgogIDxwYXRoIGQ9Ik0xMCA0MCBMMjAgNjAgTDMwIDQwIFoiIGZpbGw9IiMzYTIzMTMiLz4KICA8cmVjdCB4PSIxNSIgeT0iMjUiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzNhMjMxMyIvPgogIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTIiIHI9IjIiIGZpbGw9IiMwMDAiLz4KICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjEyIiByPSIyIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZD0iTTE1IDE5IFEyMCAxOCAyNSAxOSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNNSA1IEwxNSAzIE0zNSA1IEwyNSAzIiBzdHJva2U9IiM4YjAwMDAiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxwYXRoIGQ9Ik0xNSAzMCBMNSA0MCBNMjUgMzAgTDM1IDQwIiBzdHJva2U9IiMzYTIzMTMiIHN0cm9rZS13aWR0aD0iMi41Ii8+CiAgPHBhdGggZD0iTTE4IDUgTDE5IDIgTDIxIDIgTDIyIDUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIwLjUiIGZpbGw9Im5vbmUiLz4KPC9zdmc+`,
+            old: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1IiByPSIxMiIgZmlsbD0iIzhiNWEyYiIvPgogIDxwYXRoIGQ9Ik0xMCA0MCBMMjAgNjAgTDMwIDQwIFoiIGZpbGw9IiMyYzFhMGEiLz4KICA8cmVjdCB4PSIxNSIgeT0iMjUiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzJjMWEwYSIvPgogIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTIiIHI9IjEuNSIgZmlsbD0iIzAwMCIvPgogIDxjaXJjbGUgY3g9IjI1IiBjeT0iMTIiIHI9IjEuNSIgZmlsbD0iIzAwMCIvPgogIDxwYXRoIGQ9Ik0xNSAyMCBRMjAgMTcgMjUgMjAiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTUgMyBMMTUgMCBNMzUgMyBMMjUgMCIgc3Ryb2tlPSIjOGIwMDAwIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8cGF0aCBkPSJNMTUgMzAgTDAgNDUgTTI1IDMwIEw0MCA0NSIgc3Ryb2tlPSIjMmMxYTBhIiBzdHJva2Utd2lkdGg9IjMiLz4KICA8cGF0aCBkPSJNMTYgNSBMMTcgMSBMMjMgMSBMMjQgNSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMTIgMTUgTDI4IDE1IiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMC41IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==`,
+            ancient: `data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1IiByPSIxMiIgZmlsbD0iIzVhMzkyMSIvPgogIDxwYXRoIGQ9Ik0xMCA0MCBMMjAgNjAgTDMwIDQwIFoiIGZpbGw9IiMxYTBkMDUiLz4KICA8cmVjdCB4PSIxNSIgeT0iMjUiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMCIgZmlsbD0iIzFhMGQwNSIvPgogIDxjaXJjbGUgY3g9IjE1IiBjeT0iMTIiIHI9IjEiIGZpbGw9IiMwMDAiLz4KICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjEyIiByPSIxIiBmaWxsPSIjMDAwIi8+CiAgPHBhdGggZD0iTTE1IDIxIFEyMCAxOSAyNSAyMSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiLz4KICA8cGF0aCBkPSJNMyAwIEwxNSAtMiBNMzcgMCBMMjUgLTIiIHN0cm9rZT0iIzhiMDAwMCIgc3Ryb2tlLXdpZHRoPSIyLjUiLz4KICA8cGF0aCBkPSJNMTUgMzAgTC01IDUwIE0yNSAzMCBMNDUgNTAiIHN0cm9rZT0iIzFhMGQwNSIgc3Ryb2tlLXdpZHRoPSIzLjUiLz4KICA8cGF0aCBkPSJNMTQgNSBMMTUgMCBMMjUgMCBMMjYgNSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEuNSIgZmlsbD0ibm9uZSIvPgogIDxwYXRoIGQ9Ik0xMCAxNSBMMzAgMTUiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIi8+CiAgPHBhdGggZD0iTTEwIDE3IEwzMCAxNyIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjAuNSIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=`
+        };
+
+        // Elementos DOM
+        const timeline = document.getElementById('timeline');
+        const character = document.getElementById('character');
+        const characterIcon = document.getElementById('character-icon');
+        const currentYearDisplay = document.getElementById('current-year');
+        const characterAgeDisplay = document.getElementById('character-age');
+        const eventTitle = document.getElementById('event-title');
+        const eventDescription = document.getElementById('event-description');
+
+        // Variáveis de estado
+        let isDragging = false;
+        let currentYear = 0;
+        let currentEvent = timelineEvents[0];
+
+        // Inicializar a linha do tempo
+        function initTimeline() {
+            // Adicionar marcadores de anos
+            timelineEvents.forEach(event => {
+                const marker = document.createElement('div');
+                marker.className = 'timeline-marker';
+                marker.style.left = `${(event.year / timelineEvents[timelineEvents.length - 1].year) * 100}%`;
+                
+                const yearLabel = document.createElement('div');
+                yearLabel.className = 'marker-year';
+                yearLabel.textContent = event.year;
+                
+                marker.appendChild(yearLabel);
+                timeline.appendChild(marker);
+            });
+            
+            // Definir a imagem inicial do personagem
+            updateCharacterImage();
+        }
+
+        // Encontrar o evento mais próximo com base no ano atual
+        function findClosestEvent(year) {
+            let closest = timelineEvents[0];
+            let minDiff = Math.abs(year - closest.year);
+            
+            for (const event of timelineEvents) {
+                const diff = Math.abs(year - event.year);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closest = event;
+                }
+            }
+            
+            return closest;
+        }
+
+        // Atualizar a imagem do personagem com base na idade
+        function updateCharacterImage() {
+            const age = currentEvent.characterAge || 0;
+            
+            if (age < 30) {
+                characterIcon.style.backgroundImage = `url(${characterImages.young})`;
+            } else if (age < 60) {
+                characterIcon.style.backgroundImage = `url(${characterImages.adult})`;
+            } else if (age < 100) {
+                characterIcon.style.backgroundImage = `url(${characterImages.middleAged})`;
+            } else if (age < 130) {
+                characterIcon.style.backgroundImage = `url(${characterImages.old})`;
+            } else {
+                characterIcon.style.backgroundImage = `url(${characterImages.ancient})`;
+            }
+        }
+
+        // Atualizar a exibição do evento
+        function updateEventDisplay() {
+            currentYearDisplay.textContent = `Ano ${currentYear} E.E.`;
+            characterAgeDisplay.textContent = `Idade: ${currentEvent.characterAge} anos`;
+            eventTitle.textContent = currentEvent.title;
+            eventDescription.textContent = currentEvent.description;
+            updateCharacterImage();
+        }
+
+        // Manipuladores de eventos
+        character.addEventListener('mousedown', function() {
+            isDragging = true;
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            
+            const timelineRect = timeline.getBoundingClientRect();
+            const characterRect = character.getBoundingClientRect();
+            
+            // Calcular a posição relativa do mouse na linha do tempo
+            let relativeX = e.clientX - timelineRect.left - (characterRect.width / 2);
+            
+            // Limitar a posição dentro da linha do tempo
+            relativeX = Math.max(0, Math.min(relativeX, timelineRect.width - characterRect.width));
+            
+            // Atualizar a posição do personagem
+            character.style.left = `${relativeX}px`;
+            
+            // Calcular o ano correspondente à posição
+            const maxYear = timelineEvents[timelineEvents.length - 1].year;
+            const yearPosition = Math.round((relativeX / (timelineRect.width - characterRect.width)) * maxYear);
+            
+            currentYear = yearPosition;
+            currentEvent = findClosestEvent(yearPosition);
+            
+            updateEventDisplay();
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                character.classList.remove('dragging');
+            }
+        });
+
+        character.addEventListener('mousedown', function() {
+            isDragging = true;
+            character.classList.add('dragging');
+        });
+
+        // Inicializar a linha do tempo quando a página carregar
+        window.addEventListener('load', initTimeline);
+    </script>
+</body>
+</html>
